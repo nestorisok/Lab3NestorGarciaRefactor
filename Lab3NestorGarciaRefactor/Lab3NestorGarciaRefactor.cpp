@@ -14,27 +14,26 @@ using namespace std;
 
 int exp(), term(), fact(), exp2(int), term2(int), fact2(int), Num();
 
+//ifstream fin;
 string prog; //string for reading 1-line input expression (program)
 int indexx = 0; //global index for program string
 
 int main(int argc, const char** argv)
 {
-	string tempstring;
-	char tempchar;
+	char ch;
 
 	ifstream myfile;
 	myfile.open("myProg.txt");
 
 
-	while (myfile >> tempchar) {		// while it is not the end of file
-		prog += tempchar;				// we insert char into string
+	while (myfile.get(ch)) {
+		prog += ch;
 	}
 
-	myfile.close();					// we then close the file
+	myfile.close();
 
 	cout << "\nEquation = " << prog << endl;
 	cout << "\nResult = " << exp() << endl;
-
 
 
 }
@@ -55,6 +54,7 @@ int term() 	// term: using tail-end recursion to call non-terminals
 
 int fact()
 {
+
 	return fact2(Num());
 }
 
@@ -72,12 +72,19 @@ int exp2(int inp)		// implements right-recursive form to get our 'inp' by
 	if (indexx < prog.length()) //if not the end of program string
 	{
 		char a = prog.at(indexx++); //get one chr from program string
+
+		while (a == ' ' && (indexx < prog.length()))
+		{
+			a = prog.at(indexx++);
+		}
+
 		if (a == '+')
 			result = exp2(result + term()); //handles t+t
 		else if (a == '-')
 			result = exp2(result - term()); //handles t-t
-		else
+		else if (a == ')')
 			indexx--;		// if none of these, we go back one step
+
 
 	}
 	return result;
@@ -99,12 +106,19 @@ int term2(int inp)
 	if (indexx < prog.length()) //if not the end of program string
 	{
 		char a = prog.at(indexx++); //get one chr from program string
+
+		while (a == ' ' && (indexx < prog.length()))
+		{
+			a = prog.at(indexx++);
+		}
+
 		if (a == '*')
 			result = term2(result * fact()); //handles consecutive * operators
 		else if (a == '/')
 			result = term2(result / fact()); //handles consecutive / operators
 		else if (a == ')' || a == '+' || a == '-') //if + or -, get back one position
 			indexx--;
+
 	}
 	return result;
 }
@@ -118,6 +132,12 @@ int fact2(int inp)
 	if (indexx < prog.length())
 	{
 		char a = prog.at(indexx++);
+
+		while (a == ' ' && (indexx < prog.length()))
+		{
+			a = prog.at(indexx++);
+		}
+
 		if (a == '^')
 		{
 			result = fact2(pow(result, fact()));  // Correctly handle right-associative
@@ -132,21 +152,27 @@ int fact2(int inp)
 
 int Num()
 {
-		
 
-		if (prog.at(indexx) == '(')			// if left parantheses at indexx
+	char a = prog.at(indexx++);
+	while (a == ' ' && (indexx < prog.length()))
+	{
+		a = prog.at(indexx++);
+	}
+
+	if (a == '(')			// if left parantheses at indexx
+	{
+		//indexx++;					// we incremenet to get next char
+		int result = exp();			// keep result of exp() in result
+		if (prog.at(indexx) == ')')	// checks to see if the indexx is sitting at right parantheses
 		{
-			indexx++;					// we incremenet to get next char
-			int result = exp();			// keep result of exp() in result
-			if (prog.at(indexx) == ')')	// checks to see if the indexx is sitting at right parantheses
-			{
-				indexx++;				// if so, we increment to next char
-			}
-			return result;				// we return result to fact2() which is nested in term2()
-	
+			indexx++;				// if so, we increment to next char
 		}
-	
-		return fact2(atoi(&prog.at(indexx++)));	
+		return result;				// we return result to fact2() which is nested in term2()
+
+	}
+
+
+	return atoi(&a);
 
 
 }
