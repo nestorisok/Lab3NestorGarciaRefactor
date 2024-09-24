@@ -15,28 +15,31 @@ using namespace std;
 int exp(), term(), fact(), exp2(int), term2(int), fact2(int), Num();
 
 //ifstream fin;
-string prog; //string for reading 1-line input expression (program)
+ifstream myfile;
+string prog, tempString; //string for reading 1-line input expression (program)
 int indexx = 0; //global index for program string
+
+
 
 int main(int argc, const char** argv)
 {
-	char ch;
 
-	ifstream myfile;
 	myfile.open("myProg.txt");
-
-
-	while (myfile.get(ch)) {
-		prog += ch;
+	//getline(myfile, s1);
+	while (getline(myfile, tempString)) 
+	{
+		prog += tempString;
 	}
 
-	myfile.close();
 
 	cout << "\nEquation = " << prog << endl;
 	cout << "\nResult = " << exp() << endl;
 
+	myfile.close();
 
-}
+
+
+  }
 
 // exp() returns value from exp2(term())
 int exp()		// exp: tail-end recursion to call our non-terminals
@@ -82,9 +85,6 @@ int exp2(int inp)		// implements right-recursive form to get our 'inp' by
 			result = exp2(result + term()); //handles t+t
 		else if (a == '-')
 			result = exp2(result - term()); //handles t-t
-		else if (a == ')')
-			indexx--;		// if none of these, we go back one step
-
 
 	}
 	return result;
@@ -142,7 +142,7 @@ int fact2(int inp)
 		{
 			result = fact2(pow(result, fact()));  // Correctly handle right-associative
 		}
-		else if (a == ')' || a == '*' || a == '/' || a == '+' || a == '-')
+		else
 			indexx--;  // Step back if not '^'
 
 	}
@@ -153,26 +153,22 @@ int fact2(int inp)
 int Num()
 {
 
-	char a = prog.at(indexx++);
-	while (a == ' ' && (indexx < prog.length()))
+	if (indexx < prog.length())
 	{
-		a = prog.at(indexx++);
-	}
-
-	if (a == '(')			// if left parantheses at indexx
-	{
-		//indexx++;					// we incremenet to get next char
-		int result = exp();			// keep result of exp() in result
-		if (prog.at(indexx) == ')')	// checks to see if the indexx is sitting at right parantheses
+		char a = prog.at(indexx++);
+		while (a == ' ' && (indexx < prog.length()))
 		{
-			indexx++;				// if so, we increment to next char
+			a = prog.at(indexx++);
 		}
-		return result;				// we return result to fact2() which is nested in term2()
+
+		if (a == '(')			// if left parantheses at indexx
+		{
+			return exp();
+		}
+
+
+		return atoi(&a);
 
 	}
-
-
-	return atoi(&a);
-
 
 }
