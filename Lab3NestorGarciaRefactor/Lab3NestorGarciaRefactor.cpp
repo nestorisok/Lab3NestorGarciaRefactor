@@ -166,6 +166,9 @@ int Num()
 			return exp();
 		}
 
+		// For multiple digits we can do something like
+		// string tempStr;
+		// 
 
 		return atoi(&a);
 
